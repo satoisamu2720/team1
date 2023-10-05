@@ -38,13 +38,29 @@ class GameScene {
 	int beamFlag_[10] = {};
 	int beamTimer_ = 0;
 
+	// 敵
+	uint32_t textureHandleEnemy_ = 0;
+	Model* modelEnemy_ = 0;
+	WorldTransform worldTransformEnemy_[10];
+
+	void EnemyMove();
+	void EnemyUpdete();
+	void EnemyBorn();
+
+	int EnemyFlag_[10] = {};
+	float enemySpeed_[10] = {}; // 敵のスピード
+	float enemyJumpSpeed_[10] = {};
+	int enemyTimer_[10] = {};
+
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ
 	/// </summary>
 	GameScene();
 	// ビュープロジェクション(共通)
-	ViewProjection viewProjection_;
+	ViewProjection playerViewProjection_;
+	ViewProjection beamViewProjection_;
+	ViewProjection enemyViewProjection_;
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
