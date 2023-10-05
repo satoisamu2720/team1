@@ -143,6 +143,67 @@ void GameScene::GamePlayDraw3D() {
 		}
 	}
 }
+
+void GameScene::Collision() {
+	// 衝突判定（プレイヤーと敵）
+	CollisionPlayerEnemy();
+	// 衝突判定（ビームと敵）
+	CollisionBeamEnemy();
+}
+
+//プレイヤーと敵の当たり判定
+void GameScene::CollisionPlayerEnemy() {
+	// 敵が存在すれば
+	for (int i = 0; i < 10; i++) {
+		if (EnemyFlag_[i] == 1) {
+			// 差を求める
+			float dx =
+			    abs(worldTransformPlayer_.translation_.x - worldTransformEnemy_[i].translation_.x);
+			float dz =
+			    abs(worldTransformPlayer_.translation_.z - worldTransformEnemy_[i].translation_.z);
+			// 衝突したら
+			if (dx < 1 && dz < 1) {
+				// 存在しない
+				EnemyFlag_[i] = 0;
+				playerLife_ -= 1;
+				playerTimer_ = 60;
+				// BGM切り替え
+			}
+			if (playerLife_ <= 0) {
+				beamFlag_[i] = 0;
+				EnemyFlag_[i] = 0;
+			}
+		}
+	}
+}
+
+//敵とビームの当たり判定
+void GameScene::CollisionBeamEnemy() {
+	// 敵が存在すれば
+	for (int i = 0; i < 10; i++) {
+		if (EnemyFlag_[i] != 0) {
+			for (int b = 0; b < 10; b++) {
+				if (beamFlag_[b] == 1) {
+					// 差を求める
+					float dx =
+					    abs(worldTransformBeam_[b].translation_.x -
+					        worldTransformEnemy_[i].translation_.x);
+					float dz =
+					    abs(worldTransformBeam_[b].translation_.z -
+					        worldTransformEnemy_[i].translation_.z);
+					// 衝突したら
+					if (dx < 1 && dz < 1) {
+						// 存在しない
+						enemyJumpSpeed_[i] = 1;
+						EnemyFlag_[i] = 2;
+						beamFlag_[b] = 0;
+					}
+				}
+			}
+		}
+	}
+}
+
 	void GameScene::Draw() {
 
 	// コマンドリストの取得

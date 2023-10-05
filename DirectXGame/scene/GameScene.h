@@ -38,6 +38,10 @@ class GameScene {
 	int beamFlag_[10] = {};
 	int beamTimer_ = 0;
 
+	void Collision();
+	void CollisionPlayerEnemy();
+	void CollisionBeamEnemy();
+
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ
