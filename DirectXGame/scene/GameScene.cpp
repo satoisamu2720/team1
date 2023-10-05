@@ -60,6 +60,33 @@ void GameScene::EnemyUpdate() {
 
 void GameScene::EnemyBorn() {
 
+	for (int e = 0; e < 10; e++) {
+
+		if (EnemyFlag_[e] == 0) {
+			if (rand() % 10 == 0) {
+
+				int x = rand() % 80;
+				float x2 = (float)x / 10 - 4;
+				worldTransformEnemy_[e].translation_.x = x2;
+				worldTransformEnemy_[e].translation_.z = 40;
+				worldTransformEnemy_[e].translation_.y = 0;
+
+				if (rand() % 2 == 0) {
+					enemySpeed_[e] = 0.1f;
+
+				} else {
+					enemySpeed_[e] = -0.1f;
+				}
+				EnemyFlag_[e] = 1;
+				break;
+			}
+		}
+		//-5にいったら削除
+		if (worldTransformEnemy_[e].translation_.z < -5) {
+			EnemyFlag_[e] = 0;
+			break;
+		}
+	}
 }
 
 void GameScene::EnemyMove() {
