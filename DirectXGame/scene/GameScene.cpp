@@ -78,12 +78,15 @@ void GameScene::PlayerUpdate() {
 
 //壁更新
 void GameScene::WallUpdate() {
+
+
+
 	if (WallFlag_ == true) 
 	{
 		// 変換行列を更新
 		worldTransformWall_.matWorld_ = MakeAffineMatrix(
-		    worldTransformWall_.scale_, worldTransformWall_.rotation_,
-		    worldTransformWall_.translation_);
+		worldTransformWall_.scale_, worldTransformWall_.rotation_,
+		worldTransformWall_.translation_);
 		// 変換行列を定数バッファに転送
 		worldTransformWall_.TransferMatrix();
 	}
