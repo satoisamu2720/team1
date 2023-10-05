@@ -14,11 +14,30 @@
 /// </summary>
 class GameScene {
 
+	uint32_t textureHandle_ = 0;
+	WorldTransform worldTransformEnemy_[10];
+	Model* modelEnemy_ = nullptr;
+
+	int EnemyFlag_[10] = {};
+	float enemySpeed_[10] = {};
+
+	void EnemyMove();
+	void EnemyUpdate();
+	void EnemyBorn();
+
 public: // メンバ関数
 	/// <summary>
 	/// コンストクラタ
 	/// </summary>
 	GameScene();
+
+	// ビュープロジェクション(共通)
+	ViewProjection viewProjection_;
+
+	int sceneMode_ = 0;
+
+	void GamePlayUpdate();
+	void GamePlayDraw3D();
 
 	/// <summary>
 	/// デストラクタ
@@ -48,4 +67,6 @@ private: // メンバ変数
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	
+
 };

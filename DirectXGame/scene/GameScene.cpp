@@ -1,19 +1,71 @@
 #include "GameScene.h"
 #include "TextureManager.h"
+#include "MathUtilityForText.h"
 #include <cassert>
+#include "time.h"
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() { 
+
+	delete modelEnemy_; 
+}
 
 void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+	viewProjection_.Initialize();
+
+	textureHandle_ = TextureManager::Load("enemy.png");
+	modelEnemy_ = Model::Create();
+
+	for (int e = 0; e < 10; e++) 
+	{
+		worldTransformEnemy_[e].scale_ = {0.2f, 0.2f, 0.2f};
+		worldTransformEnemy_[e].Initialize();
+	}
 }
 
-void GameScene::Update() {}
+void GameScene::GamePlayUpdate() { 
+	EnemyUpdate(); 
+}
+
+void GameScene::Update() 
+{
+	switch (sceneMode_) 
+	{
+	case 0:
+		GamePlayUpdate();
+		break;
+	}
+}
+
+void GameScene::EnemyUpdate() {
+	EnemyMove();
+	EnemyBorn();
+	for (int e = 0; e < 10; e++) {
+		if (EnemyFlag_[e] != 0)
+
+			worldTransformEnemy_[e].matWorld_ = MakeAffineMatrix(
+			    worldTransformEnemy_[e].scale_, worldTransformEnemy_[e].rotation_,
+			    worldTransformEnemy_[e].translation_);
+
+		// 変換行列を定数バッファに転送
+		worldTransformEnemy_[e].TransferMatrix();
+	}
+}
+
+void GameScene::EnemyBorn() {
+
+}
+
+void GameScene::EnemyMove() {
+
+}
+
 
 void GameScene::Draw() {
 
@@ -41,6 +93,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+
+	
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
