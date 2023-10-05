@@ -9,7 +9,7 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "DebugCamera.h"
-
+#include "ImGuiManager.h"
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -23,6 +23,7 @@ class GameScene {
 	int playerLife_ = 3;
 	int playerTimer_ = 0;
 	float playerSpeed_ = 0.05f;
+	int playerMoveFlag_ = 0;
 	// プレイヤー更新
 	void PlayerUpdate();
 
@@ -38,6 +39,7 @@ class GameScene {
 	int beamFlag_[10] = {};
 	int beamTimer_ = 0;
 
+
 	// 敵
 	uint32_t textureHandleEnemy_ = 0;
 	Model* modelEnemy_ = 0;
@@ -49,8 +51,15 @@ class GameScene {
 
 	int EnemyFlag_[10] = {};
 	float enemySpeed_[10] = {}; // 敵のスピード
-	float enemyJumpSpeed_[10] = {};
 	int enemyTimer_[10] = {};
+
+	void Collision();
+	void CollisionPlayerEnemy();
+	void CollisionBeamEnemy();
+
+
+	int buttonTimer_ = 20;
+	int buttonTimerFlag_ = 0;
 
 public: // メンバ関数
 	/// <summary>
@@ -88,22 +97,6 @@ private: // メンバ変数
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 
-	/*uint32_t textureHandle_ = 0;
-	Sprite* sprite_ = nullptr;
-
-	Model* model_ = nullptr;
-	WorldTransform worldTransform_;
-	ViewProjection viewProjection_;
-
-	uint32_t soundDataHandle_ = 0;
-	uint32_t voiceHandle_ = 0;
-
-	float inputFloat3[3] = {0, 0, 0};
-
-	DebugCamera* debugCamera_ = nullptr;
-
-	bool isDebugcameraActive_ = false;*/
-	/// <summary>
-	/// ゲームシーン用
-	/// </summary>
+	float inputFloat[3]{0, 0, 0};
+	
 };

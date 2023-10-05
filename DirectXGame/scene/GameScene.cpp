@@ -55,6 +55,7 @@ void GameScene::GamePlayUpdete() {
 	PlayerUpdate(); 
 	BeamUpdate();
 	EnemyUpdete();
+	Collision();
 }
 void GameScene::Update() { 
 	GamePlayUpdete(); 
@@ -63,17 +64,36 @@ void GameScene::Update() {
 // プレイヤー更新処理
 void GameScene::PlayerUpdate() {
 
-	// 移動
-	worldTransformPlayer_.translation_.x += playerSpeed_;
+	
+	if (++buttonTimer_ >= 20 && input_->PushKey(DIK_SPACE)) {
+		playerMoveFlag_++;
+		buttonTimer_ = 0;
+	}
+	if (playerMoveFlag_ > 1) {
+		playerMoveFlag_ = 0;
+	}
+	// 右へ移動
+	if (playerMoveFlag_ == 0) {
+		worldTransformPlayer_.translation_.x += playerSpeed_;
+		inputFloat[0] = worldTransformPlayer_.translation_.x;
+	}  
+	// 左へ移動
+	if (playerMoveFlag_ == 1) {
+		worldTransformPlayer_.translation_.x -= playerSpeed_;
+		inputFloat[0] = worldTransformPlayer_.translation_.x;
+	}  
+
 	// 左へ移動
 	if (worldTransformPlayer_.translation_.x > 4) {
-		playerSpeed_ = -0.05f;
+		playerMoveFlag_ = 1;
 	}
 	// 右へ移動
 	if (worldTransformPlayer_.translation_.x < -4) {
-		playerSpeed_ = 0.05f;
+		playerMoveFlag_ = 0;
 	}
-
+	worldTransformPlayer_.translation_.x = inputFloat[0];
+	worldTransformPlayer_.translation_.y = inputFloat[1];
+	worldTransformPlayer_.translation_.z = inputFloat[2];
 	// 変換行列を更新
 	worldTransformPlayer_.matWorld_ = MakeAffineMatrix(
 	    worldTransformPlayer_.scale_, worldTransformPlayer_.rotation_,
@@ -84,6 +104,12 @@ void GameScene::PlayerUpdate() {
 	if (playerTimer_ > 0) {
 		playerTimer_ -= 1;
 	}
+	// ImGuiスライダー
+	ImGui::Begin("PlayerDebug");
+	//ImGui::Text("DebugCamera Toggle : LEFT SHIFT");
+	ImGui::SliderFloat3("Positions", inputFloat, -4.0f, 4.0f);
+	// ImGui終わり
+	ImGui::End();
 }
 
 // ビーム更新処理
@@ -119,6 +145,8 @@ void GameScene::BeamMove() {
 void GameScene::BeamBorn() {
 	// スペースキーで発射
 	for (int b = 0; b < 10; b++) {
+		
+		
 		if (beamTimer_ == 0) {
 
 			if (input_->PushKey(DIK_SPACE) && beamFlag_[b] == 0) {
@@ -215,7 +243,64 @@ void GameScene::EnemyBorn() {
 		}
 	}
 }
+void GameScene::Collision() {
+	// 衝突判定（プレイヤーと敵）
+	CollisionPlayerEnemy();
+	// 衝突判定（ビームと敵）
+	CollisionBeamEnemy();
+}
 
+// プレイヤーと敵の当たり判定
+void GameScene::CollisionPlayerEnemy() {
+	// 敵が存在すれば
+	for (int i = 0; i < 10; i++) {
+		if (EnemyFlag_[i] == 1) {
+			// 差を求める
+			float dx =
+			    abs(worldTransformPlayer_.translation_.x - worldTransformEnemy_[i].translation_.x);
+			float dz =
+			    abs(worldTransformPlayer_.translation_.z - worldTransformEnemy_[i].translation_.z);
+			// 衝突したら
+			if (dx < 1 && dz < 1) {
+				// 存在しない
+				EnemyFlag_[i] = 0;
+				playerLife_ -= 1;
+				playerTimer_ = 60;
+				// BGM切り替え
+			}
+			if (playerLife_ <= 0) {
+				beamFlag_[i] = 0;
+				EnemyFlag_[i] = 0;
+			}
+		}
+	}
+}
+
+// 敵とビームの当たり判定
+void GameScene::CollisionBeamEnemy() {
+	// 敵が存在すれば
+	for (int i = 0; i < 10; i++) {
+		if (EnemyFlag_[i] != 0) {
+			for (int b = 0; b < 10; b++) {
+				if (beamFlag_[b] == 1) {
+					// 差を求める
+					float dx =
+					    abs(worldTransformBeam_[b].translation_.x -
+					        worldTransformEnemy_[i].translation_.x);
+					float dz =
+					    abs(worldTransformBeam_[b].translation_.z -
+					        worldTransformEnemy_[i].translation_.z);
+					// 衝突したら
+					if (dx < 1 && dz < 1) {
+						// 存在しない
+						EnemyFlag_[i] = 0;
+						beamFlag_[b] = 0;
+					}
+				}
+			}
+		}
+	}
+}
 void GameScene::GamePlayDraw3D() {
 	//プレイヤー
 	modelPlayer_->Draw(worldTransformPlayer_, playerViewProjection_, textureHandlePlayer_);
