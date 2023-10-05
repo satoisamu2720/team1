@@ -31,6 +31,21 @@ class GameScene {
 	Model* modelBeam_ = {};
 	WorldTransform worldTransformBeam_[10];
 
+	//壁
+	uint32_t textureHandleWall_ = 0;
+	Model* modelWall_ = nullptr;
+	WorldTransform worldTransformWall_;
+
+	//壁更新
+	void WallUpdate();
+	
+	//壁フラグ
+	int WallFlag_ = 0;
+
+	//壁体力
+	int WallLife_ = 3;
+
+
 	void BeamMove();
 	void BeamUpdate();
 	void BeamBorn();
@@ -41,6 +56,8 @@ class GameScene {
 	void Collision();
 	void CollisionPlayerEnemy();
 	void CollisionBeamEnemy();
+	void CollisionBeamWall();
+
 
 public: // メンバ関数
 	/// <summary>

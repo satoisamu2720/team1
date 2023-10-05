@@ -33,10 +33,17 @@ void GameScene::Initialize() {
 		worldTransformBeam_[b].scale_ = {0.3f, 0.3f, 0.3f};
 		worldTransformBeam_[b].Initialize();
 	}
+
+	//壁
+	modelWall_ = Model::Create();
+	worldTransformWall_.scale_ = {0.5f, 0.4f, 0.2f};
+	worldTransformWall_.Initialize();
+
 }
 void GameScene::GamePlayUpdete() { 
 	PlayerUpdate(); 
 	BeamUpdate();
+	WallUpdate();
 }
 void GameScene::Update() { 
 	GamePlayUpdete(); 
@@ -65,6 +72,19 @@ void GameScene::PlayerUpdate() {
 
 	if (playerTimer_ > 0) {
 		playerTimer_ -= 1;
+	}
+}
+
+//壁更新
+void GameScene::WallUpdate() {
+	if (WallFlag_ == true) 
+	{
+		// 変換行列を更新
+		worldTransformWall_.matWorld_ = MakeAffineMatrix(
+		    worldTransformWall_.scale_, worldTransformWall_.rotation_,
+		    worldTransformWall_.translation_);
+		// 変換行列を定数バッファに転送
+		worldTransformWall_.TransferMatrix();
 	}
 }
 
@@ -142,6 +162,11 @@ void GameScene::GamePlayDraw3D() {
 			modelBeam_->Draw(worldTransformBeam_[b], viewProjection_, textureHandleBeam_);
 		}
 	}
+	//壁	
+	if (WallFlag_ == true) 
+	{
+		modelWall_->Draw(worldTransformWall_, viewProjection_, textureHandleWall_);
+	}
 }
 
 void GameScene::Collision() {
@@ -149,6 +174,8 @@ void GameScene::Collision() {
 	CollisionPlayerEnemy();
 	// 衝突判定（ビームと敵）
 	CollisionBeamEnemy();
+	// 衝突判定 (ビームと壁)
+	CollisionBeamWall();
 }
 
 //プレイヤーと敵の当たり判定
@@ -203,6 +230,30 @@ void GameScene::CollisionBeamEnemy() {
 		}
 	}
 }
+
+void GameScene::CollisionBeamWall() {
+	// 敵が存在すれば
+	for (int b = 0; b < 10; b++) {
+		if (WallFlag_ == true) {
+			// 差を求める
+			float dx =
+			    abs(worldTransformBeam_[b].translation_.x - worldTransformWall_.translation_.x);
+			float dz =
+			    abs(worldTransformBeam_[b].translation_.z - worldTransformWall_.translation_.z);
+			// 衝突したら
+			if (dx < 1 && dz < 1) 
+			{
+				WallLife_ -= 1;
+			}
+			if (WallLife_ <= 0) 
+			{
+				WallFlag_ = false;
+			}
+		}
+	}
+}
+
+
 
 	void GameScene::Draw() {
 
