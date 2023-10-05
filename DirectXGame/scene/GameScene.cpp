@@ -8,6 +8,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() { 
 	delete modelPlayer_; 
 	delete modelBeam_;
+	delete modelWall_;
 }
 
 void GameScene::Initialize() {
