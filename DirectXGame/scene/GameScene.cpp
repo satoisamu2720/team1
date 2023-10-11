@@ -82,7 +82,6 @@ void GameScene::PlayerUpdate() {
 		worldTransformPlayer_.translation_.x -= playerSpeed_;
 		inputFloat[0] = worldTransformPlayer_.translation_.x;
 	}  
-
 	// 左へ移動
 	if (worldTransformPlayer_.translation_.x > 4) {
 		playerMoveFlag_ = 1;
