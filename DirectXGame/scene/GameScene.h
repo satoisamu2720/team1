@@ -45,6 +45,8 @@ class GameScene {
 	//壁体力
 	int WallLife_ = 3;
 
+	//壁の速度
+	float WallSpeed_ = 0.02f;
 
 	void BeamMove();
 	void BeamUpdate();
