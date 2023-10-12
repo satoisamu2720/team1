@@ -64,8 +64,6 @@ void GameScene::PlayerUpdate() {
 		playerSpeed_ = 0.05f;
 	}
 
-	
-
 	// 変換行列を更新
 	worldTransformPlayer_.matWorld_ = MakeAffineMatrix(
 	    worldTransformPlayer_.scale_, worldTransformPlayer_.rotation_,
@@ -105,6 +103,8 @@ void GameScene::WallUpdate() {
 	if (WallLife_ == 2) {
 		WallSpeed_ = 0.03f;
 	}
+	
+	WallFlag_ = true;
 
 	if (WallFlag_ == true) 
 	{
@@ -238,7 +238,7 @@ void GameScene::CollisionBeamEnemy() {
 	// 敵が存在すれば
 	for (int i = 0; i < 10; i++) {
 		if (EnemyFlag_[i] != 0) {
-			for (int b = 0; b < 10; b++) {2
+			for (int b = 0; b < 10; b++) {
 				if (beamFlag_[b] == 1) {
 					// 差を求める
 					float dx =
@@ -263,7 +263,7 @@ void GameScene::CollisionBeamEnemy() {
 void GameScene::CollisionBeamWall() {
 	// 敵が存在すれば
 	for (int b = 0; b < 10; b++) {
-		if (WallFlag_ == true) {
+		if (WallFlag_ == true && beamFlag_[b] == true) {
 			// 差を求める
 			float dx =
 			    abs(worldTransformBeam_[b].translation_.x - worldTransformWall_.translation_.x);
@@ -273,6 +273,8 @@ void GameScene::CollisionBeamWall() {
 			if (dx < 1 && dz < 1) 
 			{
 				WallLife_ -= 1;
+				worldTransformBeam_[b].translation_.z = -10;
+				beamFlag_[b] = false;
 			}
 			if (WallLife_ <= 0) 
 			{
