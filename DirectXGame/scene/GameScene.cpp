@@ -9,6 +9,7 @@ GameScene::~GameScene() {
 	delete modelPlayer_; 
 	delete modelBeam_;
 	delete modelEnemy_;
+	delete modelWall_;
 }
 
 void GameScene::Initialize() {
@@ -28,6 +29,10 @@ void GameScene::Initialize() {
 	enemyViewProjection_.translation_.y = 1;
 	enemyViewProjection_.translation_.z = -6;
 	enemyViewProjection_.Initialize();
+	//壁ビュープロジェクションの初期化
+	wallViewProjection_.translation_.y = 1;
+	wallViewProjection_.translation_.z = -6;
+	wallViewProjection_.Initialize();
 
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
@@ -50,15 +55,21 @@ void GameScene::Initialize() {
 		worldTransformEnemy_[e].scale_ = {0.5f, 0.5f, 0.5f};
 		worldTransformEnemy_[e].Initialize();
 	}
+	// 壁
+	textureHandleWall_ = TextureManager::Load("wall.png");
+	modelWall_ = Model::Create();
+	worldTransformWall_.scale_ = {0.5f, 0.5f, 0.5f};
+	worldTransformWall_.Initialize();
 }
-void GameScene::GamePlayUpdete() { 
+void GameScene::GamePlayUpdate() { 
 	PlayerUpdate(); 
 	BeamUpdate();
-	EnemyUpdete();
+	EnemyUpdate();
+	WallUpdate();
 	Collision();
 }
 void GameScene::Update() { 
-	GamePlayUpdete(); 
+	GamePlayUpdate(); 
 }
 
 // プレイヤー更新処理
@@ -179,7 +190,7 @@ void GameScene::BeamBorn() {
 }
 
 // 敵の更新処理
-void GameScene::EnemyUpdete() {
+void GameScene::EnemyUpdate() {
 	EnemyMove();
 	EnemyBorn();
 	for (int e = 0; e < 10; e++) {
@@ -242,11 +253,49 @@ void GameScene::EnemyBorn() {
 		}
 	}
 }
+// 壁更新
+void GameScene::WallUpdate() {
+	
+		worldTransformWall_.translation_.z = 10;
+	// 壁の移動
+	worldTransformWall_.translation_.x += WallSpeed_;
+	// 左へ移動
+	if (worldTransformWall_.translation_.x > 4) {
+		WallSpeed_ = -0.02f;
+
+		if (WallLife_ == 2) {
+			WallSpeed_ = -0.03f;
+		}
+	}
+	// 右へ移動
+	if (worldTransformWall_.translation_.x < -4) {
+		WallSpeed_ = 0.02f;
+
+		if (WallLife_ == 2) {
+			WallSpeed_ = 0.03f;
+		}
+	}
+
+	if (WallLife_ == 2) {
+		WallSpeed_ = 0.03f;
+	}
+	if (WallLife_ >= 0) {
+		// 変換行列を更新
+		worldTransformWall_.matWorld_ = MakeAffineMatrix(
+		    worldTransformWall_.scale_, worldTransformWall_.rotation_,
+		    worldTransformWall_.translation_);
+		// 変換行列を定数バッファに転送
+		worldTransformWall_.TransferMatrix();
+	}
+}
+
 void GameScene::Collision() {
 	// 衝突判定（プレイヤーと敵）
 	CollisionPlayerEnemy();
 	// 衝突判定（ビームと敵）
 	CollisionBeamEnemy();
+	//衝突判定　（ビームと壁）
+	CollisionBeamWall();
 }
 
 // プレイヤーと敵の当たり判定
@@ -300,6 +349,37 @@ void GameScene::CollisionBeamEnemy() {
 		}
 	}
 }
+void GameScene::CollisionBeamWall() {
+	// 壁が存在すれば
+	for (int b = 0; b < 10; b++) {
+		if (WallFlag_ == 1 && WallTimeFlag_ == 0) {
+			// 差を求める
+			float dx =
+			    abs(worldTransformBeam_[b].translation_.x - worldTransformWall_.translation_.x);
+			float dz =
+			    abs(worldTransformBeam_[b].translation_.z - worldTransformWall_.translation_.z);
+			// 衝突したら
+			if (dx < 1 && dz < 1) {
+				WallLife_ -= 1;
+				beamFlag_[b] = 0;
+				WallTimeFlag_ = 1;
+			}
+
+			if (WallTimeFlag_ == 1) {
+				WallTime_--;
+			}
+			if (WallTime_ == 0) {
+				WallTimeFlag_ = 0;
+			}
+			if (WallLife_ <= 0) {
+				WallFlag_ = 0;
+			}
+		}
+		
+	}
+}
+
+
 void GameScene::GamePlayDraw3D() {
 	//プレイヤー
 	modelPlayer_->Draw(worldTransformPlayer_, playerViewProjection_, textureHandlePlayer_);
@@ -314,6 +394,10 @@ void GameScene::GamePlayDraw3D() {
 		if (EnemyFlag_[e] != 0) {
 			modelEnemy_->Draw(worldTransformEnemy_[e], enemyViewProjection_, textureHandleEnemy_);
 		}
+	}
+	// 壁
+	if (WallFlag_ == 1) {
+		modelWall_->Draw(worldTransformWall_, wallViewProjection_, textureHandleWall_);
 	}
 }
 	void GameScene::Draw() {
