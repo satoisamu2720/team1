@@ -256,7 +256,7 @@ void GameScene::EnemyBorn() {
 // 壁更新
 void GameScene::WallUpdate() {
 	
-		worldTransformWall_.translation_.z = 10;
+	worldTransformWall_.translation_.z = 10;
 	// 壁の移動
 	worldTransformWall_.translation_.x += WallSpeed_;
 	// 左へ移動
@@ -276,9 +276,6 @@ void GameScene::WallUpdate() {
 		}
 	}
 
-	if (WallLife_ == 2) {
-		WallSpeed_ = 0.03f;
-	}
 	if (WallLife_ >= 0) {
 		// 変換行列を更新
 		worldTransformWall_.matWorld_ = MakeAffineMatrix(
@@ -361,8 +358,10 @@ void GameScene::CollisionBeamWall() {
 			// 衝突したら
 			if (dx < 1 && dz < 1) {
 				WallLife_ -= 1;
-				beamFlag_[b] = 0;
 				WallTimeFlag_ = 1;
+
+				beamFlag_[b] = 0;
+				worldTransformBeam_[b].translation_.z = -20;
 			}
 
 			
@@ -375,6 +374,8 @@ void GameScene::CollisionBeamWall() {
 		}
 		if (WallTime_ == 0) {
 			WallTimeFlag_ = 0;
+			WallTime_ = 30;
+			
 		}
 		
 	}
