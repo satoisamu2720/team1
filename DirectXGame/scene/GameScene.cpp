@@ -10,6 +10,7 @@ GameScene::~GameScene() {
 	delete modelBeam_;
 	delete modelEnemy_;
 	delete modelWall_;
+	delete modelSkyDome_;
 }
 
 void GameScene::Initialize() {
@@ -33,6 +34,11 @@ void GameScene::Initialize() {
 	wallViewProjection_.translation_.y = 1;
 	wallViewProjection_.translation_.z = -6;
 	wallViewProjection_.Initialize();
+	//スカイドーム
+	SkyDomeViewProjection_.translation_.x = 0;
+	SkyDomeViewProjection_.translation_.y = 0;
+	SkyDomeViewProjection_.translation_.z = 0;
+	SkyDomeViewProjection_.Initialize();
 
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
@@ -60,6 +66,10 @@ void GameScene::Initialize() {
 	modelWall_ = Model::Create();
 	worldTransformWall_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransformWall_.Initialize();
+
+	//３Dモデル
+	modelSkyDome_ = Model::CreateFromOBJ("skydome", true);
+	worldTransformSkyDome_.Initialize();
 }
 void GameScene::GamePlayUpdate() { 
 	PlayerUpdate(); 
@@ -401,6 +411,8 @@ void GameScene::GamePlayDraw3D() {
 	if (WallFlag_ == 1) {
 		modelWall_->Draw(worldTransformWall_, wallViewProjection_, textureHandleWall_);
 	}
+
+	modelSkyDome_->Draw(worldTransformSkyDome_, SkyDomeViewProjection_);
 }
 	void GameScene::Draw() {
 

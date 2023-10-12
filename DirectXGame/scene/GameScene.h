@@ -50,6 +50,9 @@ class GameScene {
 	int WallTime_ = 30;
 	int WallTimeFlag_ = 0;
 
+	// スカイドーム
+	WorldTransform worldTransformSkyDome_;
+	Model* modelSkyDome_ = nullptr;
 
 	int buttonTimer_ = 20; //ボタンクールタイム
 	int buttonTimerFlag_ = 0;//ボタンクールタイムフラグ
@@ -64,6 +67,7 @@ public: // メンバ関数
 	ViewProjection beamViewProjection_;
 	ViewProjection enemyViewProjection_;
 	ViewProjection wallViewProjection_;
+	ViewProjection SkyDomeViewProjection_;
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
