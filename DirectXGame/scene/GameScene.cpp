@@ -365,15 +365,16 @@ void GameScene::CollisionBeamWall() {
 				WallTimeFlag_ = 1;
 			}
 
-			if (WallTimeFlag_ == 1) {
-				WallTime_--;
-			}
-			if (WallTime_ == 0) {
-				WallTimeFlag_ = 0;
-			}
+			
 			if (WallLife_ <= 0) {
 				WallFlag_ = 0;
 			}
+		}
+		if (WallTimeFlag_ == 1) {
+			WallTime_--;
+		}
+		if (WallTime_ == 0) {
+			WallTimeFlag_ = 0;
 		}
 		
 	}
