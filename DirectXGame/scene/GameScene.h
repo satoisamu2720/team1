@@ -54,8 +54,25 @@ class GameScene {
 	WorldTransform worldTransformSkyDome_;
 	Model* modelSkyDome_ = nullptr;
 
+	//地面
+	WorldTransform worldTransformGround_;
+	Model* modelGround_ = nullptr;
+
 	int buttonTimer_ = 20; //ボタンクールタイム
 	int buttonTimerFlag_ = 0;//ボタンクールタイムフラグ
+
+	//ナンバー
+	uint32_t textureHandleNumber_ = 0;
+	Sprite* spriteNumber_[4] = {};
+	 
+	//スコア
+	uint32_t textureHandleSCORE_ = 0;
+	Sprite* spriteScore_ = {};
+
+	int gameScore_ = 0;
+
+	//ライフ表示
+	Sprite* spriteLife_[3] = {};
 
 public: // メンバ関数
 	/// <summary>
@@ -68,6 +85,7 @@ public: // メンバ関数
 	ViewProjection enemyViewProjection_;
 	ViewProjection wallViewProjection_;
 	ViewProjection SkyDomeViewProjection_;
+	ViewProjection GroundViewProjection_;
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -99,6 +117,8 @@ public: // メンバ関数
 	/// 描画
 	/// </summary>
 	void Draw();
+	void DrawScore(); //スコア表示
+	void GamePlayDraw2DNear();
 	void GamePlayDraw3D();
 
 private: // メンバ変数

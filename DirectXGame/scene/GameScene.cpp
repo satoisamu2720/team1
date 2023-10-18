@@ -11,6 +11,7 @@ GameScene::~GameScene() {
 	delete modelEnemy_;
 	delete modelWall_;
 	delete modelSkyDome_;
+	delete modelGround_;
 }
 
 void GameScene::Initialize() {
@@ -39,6 +40,11 @@ void GameScene::Initialize() {
 	SkyDomeViewProjection_.translation_.y = 0;
 	SkyDomeViewProjection_.translation_.z = 0;
 	SkyDomeViewProjection_.Initialize();
+	//地面
+	GroundViewProjection_.translation_.x = 1;
+	GroundViewProjection_.translation_.y = 1;
+	GroundViewProjection_.translation_.z = 1;
+	GroundViewProjection_.Initialize();
 
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
@@ -67,10 +73,24 @@ void GameScene::Initialize() {
 	worldTransformWall_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransformWall_.Initialize();
 
-	//３Dモデル
+	//天球
 	modelSkyDome_ = Model::CreateFromOBJ("skydome", true);
 	worldTransformSkyDome_.Initialize();
+
+	//地面
+	modelGround_ = Model::CreateFromOBJ("wall", true);
+	worldTransformGround_.Initialize();
+
+	//スコア
+	textureHandleNumber_ = TextureManager::Load("number.png");
+	for (int i = 0; i < 4; i++) {
+		spriteNumber_[i] = Sprite::Create(textureHandleNumber_, {130.0f + i * 26, 10});
+	}
+
+	textureHandleSCORE_ = TextureManager::Load("score.png");
+	spriteScore_ = Sprite::Create(textureHandleSCORE_, {0.0f, 10});
 }
+
 void GameScene::GamePlayUpdate() { 
 	PlayerUpdate(); 
 	BeamUpdate();
@@ -348,6 +368,7 @@ void GameScene::CollisionBeamEnemy() {
 					// 衝突したら
 					if (dx < 1 && dz < 1) {
 						// 存在しない
+						gameScore_ += 1;
 						EnemyFlag_[i] = 0;
 						beamFlag_[b] = 0;
 					}
@@ -369,7 +390,6 @@ void GameScene::CollisionBeamWall() {
 			if (dx < 1 && dz < 1) {
 				WallLife_ -= 1;
 				WallTimeFlag_ = 1;
-
 				beamFlag_[b] = 0;
 				worldTransformBeam_[b].translation_.z = -20;
 			}
@@ -377,6 +397,7 @@ void GameScene::CollisionBeamWall() {
 			
 			if (WallLife_ <= 0) {
 				WallFlag_ = 0;
+				gameScore_ += 2;
 			}
 		}
 		if (WallTimeFlag_ == 1) {
@@ -391,6 +412,43 @@ void GameScene::CollisionBeamWall() {
 	}
 }
 
+void GameScene::GamePlayDraw2DNear() 
+{
+	// ライフ
+	for (int i = 0; i < 3; i++) 
+	{ 
+		spriteLife_[i] = Sprite::Create(textureHandlePlayer_,{worldTransformPlayer_.translation_.x + i * 20, worldTransformPlayer_.translation_.y});
+		spriteLife_[i]->SetSize({20, 20});
+
+
+	}
+
+	//描画
+	for (int i = 0; i < 3; i++) 
+	{
+		spriteLife_[i]->Draw();
+	}
+	spriteScore_->Draw();
+	DrawScore();
+}
+
+void GameScene::DrawScore() {
+	int eachNumber[4] = {};
+	int number = gameScore_;
+
+	int keta = 1000;
+	for (int i = 0; i < 4; i++) {
+		eachNumber[i] = number / keta;
+		number = number % keta;
+		keta = keta / 10;
+	}
+
+	for (int i = 0; i < 4; i++) {
+		spriteNumber_[i]->SetSize({32, 64});
+		spriteNumber_[i]->SetTextureRect({32.0f * eachNumber[i], 0}, {32, 64});
+		spriteNumber_[i]->Draw();
+	}
+}
 
 void GameScene::GamePlayDraw3D() {
 	//プレイヤー
@@ -412,7 +470,11 @@ void GameScene::GamePlayDraw3D() {
 		modelWall_->Draw(worldTransformWall_, wallViewProjection_, textureHandleWall_);
 	}
 
+	//天球
 	modelSkyDome_->Draw(worldTransformSkyDome_, SkyDomeViewProjection_);
+
+	//地面
+	modelGround_->Draw(worldTransformGround_, GroundViewProjection_);
 }
 	void GameScene::Draw() {
 
@@ -449,6 +511,8 @@ void GameScene::GamePlayDraw3D() {
 #pragma region 前景スプライト描画
 	// 前景スプライト描画前処理
 	Sprite::PreDraw(commandList);
+
+	GamePlayDraw2DNear();
 
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
