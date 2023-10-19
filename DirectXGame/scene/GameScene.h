@@ -39,6 +39,7 @@ class GameScene {
 	int EnemyFlag_[10] = {};
 	float enemySpeed_[10] = {}; // 敵のスピード
 	int enemyTimer_[10] = {};
+	float enemyJumpSpeed_[10] = {};
 
 	// 壁
 	uint32_t textureHandleWall_ = 0;
@@ -49,6 +50,15 @@ class GameScene {
 	float WallSpeed_ = 0.02f; // 壁の速度
 	int WallTime_ = 30;
 	int WallTimeFlag_ = 0;
+
+	//エフェクト
+	uint32_t textureHandleEffect_ = 0;
+	Model* modelEffect_ = nullptr;
+	WorldTransform worldTransformEffect_[10];
+	float effectSpeed = 0.1f;
+	int effectFlag_ = 0;
+	int effectTimer_ = 0;
+	int effectTimerFlag_ = 0;
 
 
 	int buttonTimer_ = 20; //ボタンクールタイム
@@ -64,6 +74,7 @@ public: // メンバ関数
 	ViewProjection beamViewProjection_;
 	ViewProjection enemyViewProjection_;
 	ViewProjection wallViewProjection_;
+	ViewProjection effectViewProjection_;
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -83,6 +94,7 @@ public: // メンバ関数
 	void EnemyUpdate();//敵更新
 	void EnemyMove();//敵行動
 	void EnemyBorn();//
+	void EnemyJump();
 	void BeamUpdate(); // ビーム更新
 	void BeamMove();   // ビーム行動
 	void BeamBorn();   // ビーム
@@ -91,6 +103,8 @@ public: // メンバ関数
 	void CollisionPlayerEnemy(); // プレイヤーと敵の当たり判定
 	void CollisionBeamEnemy();   // 弾と敵の当たり判定
 	void CollisionBeamWall();
+	void EffectUpdate();
+	void EffectMove();
 	/// <summary>
 	/// 描画
 	/// </summary>

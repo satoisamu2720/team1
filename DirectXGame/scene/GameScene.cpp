@@ -10,6 +10,7 @@ GameScene::~GameScene() {
 	delete modelBeam_;
 	delete modelEnemy_;
 	delete modelWall_;
+	delete modelEffect_;
 }
 
 void GameScene::Initialize() {
@@ -33,7 +34,9 @@ void GameScene::Initialize() {
 	wallViewProjection_.translation_.y = 1;
 	wallViewProjection_.translation_.z = -6;
 	wallViewProjection_.Initialize();
-
+	//エフェクトビュープロジェクションの初期化
+	effectViewProjection_.translation_.y = 1;
+	effectViewProjection_.Initialize();
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
 	modelPlayer_ = Model::Create();
@@ -60,18 +63,25 @@ void GameScene::Initialize() {
 	modelWall_ = Model::Create();
 	worldTransformWall_.scale_ = {0.5f, 0.5f, 0.5f};
 	worldTransformWall_.Initialize();
-}
-void GameScene::GamePlayUpdate() { 
-	PlayerUpdate(); 
-	BeamUpdate();
-	EnemyUpdate();
-	WallUpdate();
-	Collision();
+	//エフェクト
+	for (int e = 0; e < 10; e++) {
+		textureHandleEffect_ = TextureManager::Load("enemy.png");
+		modelEffect_ = Model::Create();
+		worldTransformEffect_[e].scale_ = {0.5f, 0.5f, 0.5f};
+		worldTransformEffect_[e].Initialize();
+	}
 }
 void GameScene::Update() { 
 	GamePlayUpdate(); 
 }
-
+void GameScene::GamePlayUpdate() {
+	PlayerUpdate();
+	BeamUpdate();
+	EnemyUpdate();
+	WallUpdate();
+	Collision();
+	EffectUpdate();
+}
 // プレイヤー更新処理
 void GameScene::PlayerUpdate() {
 
@@ -193,6 +203,7 @@ void GameScene::BeamBorn() {
 void GameScene::EnemyUpdate() {
 	EnemyMove();
 	EnemyBorn();
+	EnemyJump();
 	for (int e = 0; e < 10; e++) {
 		if (EnemyFlag_[e] != 0)
 
@@ -253,6 +264,25 @@ void GameScene::EnemyBorn() {
 		}
 	}
 }
+
+void GameScene::EnemyJump() {
+	for (int i = 0; i < 10; i++) {
+		if (EnemyFlag_[i] == 2) {
+			//
+			worldTransformEnemy_[i].translation_.y += enemyJumpSpeed_[i];
+			//
+			enemyJumpSpeed_[i] -= 0.1f;
+			//
+			//worldTransformEnemy_[i].translation_.x += enemySpeed_[i] * 4;
+			worldTransformEnemy_[i].translation_.z += enemySpeed_[i] * 4;
+			//
+
+			if (worldTransformEnemy_[i].translation_.y < -3) {
+				EnemyFlag_[i] = 0;
+			}
+		}
+	}
+}
 // 壁更新
 void GameScene::WallUpdate() {
 	
@@ -289,6 +319,53 @@ void GameScene::WallUpdate() {
 	}
 }
 
+void GameScene::EffectUpdate() { 
+	EffectMove();
+	for (int e = 0; e < 10; e++) {
+		// 変換行列を更新
+		worldTransformEffect_[e].matWorld_ = MakeAffineMatrix(
+		    worldTransformEffect_[e].scale_, worldTransformEffect_[e].rotation_,
+		    worldTransformEffect_[e].translation_);
+		// 変換行列を定数バッファに転送
+		worldTransformEffect_[e].TransferMatrix();
+	}
+	
+
+
+}
+
+void GameScene::EffectMove() {
+	for (int e = 0; e < 10; e++) {
+		if (effectTimerFlag_ == 1) {
+			effectTimer_++;
+		}
+		if (effectTimer_ == 20) {
+			 worldTransformEffect_[e].translation_.x = worldTransformBeam_[e].translation_.x; //= worldTransformEnemy_[e].translation_.x;
+			 worldTransformEffect_[e].translation_.y= worldTransformBeam_[e].translation_.y; //= worldTransformEnemy_[e].translation_.y;
+			 worldTransformEffect_[e].translation_.z = worldTransformBeam_[e].translation_.z; //= worldTransformEnemy_[e].translation_.z;
+			effectFlag_ = 1;
+			effectTimer_= 0;
+		}
+
+		if (effectFlag_ == 1) {
+
+		worldTransformEffect_[0].rotation_.x += effectSpeed;
+		// worldTransformEffect_[0].rotation_.y += effectSpeed;
+		worldTransformEffect_[0].rotation_.z += effectSpeed;
+		worldTransformEffect_[1].rotation_.x += effectSpeed;
+		// worldTransformEffect_[0].rotation_.y += effectSpeed;
+		worldTransformEffect_[1].rotation_.z += effectSpeed;
+
+		//-5にいったら削除
+			if (worldTransformEffect_[e].translation_.z < -5) {
+			effectFlag_ = 0;
+			break;
+			}
+		}
+		
+	}
+}
+
 void GameScene::Collision() {
 	// 衝突判定（プレイヤーと敵）
 	CollisionPlayerEnemy();
@@ -312,7 +389,7 @@ void GameScene::CollisionPlayerEnemy() {
 			if (dx < 1 && dz < 1) {
 				// 存在しない
 				EnemyFlag_[i] = 0;
-				playerLife_ -= 1;
+				//playerLife_ -= 1;
 				playerTimer_ = 60;
 				// BGM切り替え
 			}
@@ -341,7 +418,9 @@ void GameScene::CollisionBeamEnemy() {
 					// 衝突したら
 					if (dx < 1 && dz < 1) {
 						// 存在しない
-						EnemyFlag_[i] = 0;
+						//effectTimerFlag_ = 1;
+						enemyJumpSpeed_[i] = 1.0f;
+						EnemyFlag_[i] = 2;
 						beamFlag_[b] = 0;
 					}
 				}
@@ -399,6 +478,11 @@ void GameScene::GamePlayDraw3D() {
 	// 壁
 	if (WallFlag_ == 1) {
 		modelWall_->Draw(worldTransformWall_, wallViewProjection_, textureHandleWall_);
+	}
+	for (int e = 0; e < 10; e++) {
+		if (EnemyFlag_[e] != 0) {
+			modelEnemy_->Draw(worldTransformEnemy_[e], enemyViewProjection_, textureHandleEnemy_);
+		}
 	}
 }
 	void GameScene::Draw() {
