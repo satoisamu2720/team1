@@ -373,7 +373,8 @@ void GameScene::EnemyJump() {
 			worldTransformEnemy_[i].translation_.y += enemySpeed_[i] * 4;
 			//
 
-			if (worldTransformEnemy_[i].translation_.y < -3) {
+			if (worldTransformEnemy_[i].translation_.y < -3 ||
+			    worldTransformEnemy_[i].translation_.y>3) {
 				EnemyFlag_[i] = 0;
 			}
 		}
