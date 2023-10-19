@@ -22,7 +22,7 @@ class GameScene {
 
 	int playerLife_ = 3;
 	int playerTimer_ = 0;
-	float playerSpeed_ = 0.05f;
+	float playerSpeed_ = 0.03f;
 	int playerMoveFlag_ = 0;
 	
 	// ビーム
@@ -68,13 +68,23 @@ class GameScene {
 	//スコア
 	uint32_t textureHandleSCORE_ = 0;
 	Sprite* spriteScore_ = {};
-
 	int gameScore_ = 0;
 
 	int gameTimer_ = 0;
 
 	//ライフ表示
-	Sprite* spriteLife_[3] = {};
+	/*orldTransform WorldTransformLife_ ;
+	Model* modelLife_[3] = {nullptr};
+	Sprite* spriteLife_[3] = {};*/
+
+	// プレイヤーライフ
+	uint32_t textureHandlePlayerLife_ = 0;
+	Model* modelPlayerLife_ = nullptr;
+	WorldTransform worldTransformPlayerLife_[3];
+
+	int playerTimerLife_ = 0;
+	float playerLifeSpeed_ = 0.03f;
+	int playerLifeMoveFlag_[3] = {};
 
 	//シーン切り替え
 	int sceneMode_ = 1;
@@ -109,6 +119,7 @@ public: // メンバ関数
 	ViewProjection wallViewProjection_;
 	ViewProjection SkyDomeViewProjection_;
 	ViewProjection GroundViewProjection_;
+	ViewProjection PlayerLifeViewProjection_;
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
@@ -125,6 +136,7 @@ public: // メンバ関数
 	void Update();
 	void GamePlayUpdate();//ゲーム更新
 	void PlayerUpdate(); // プレイヤー更新
+	void PlayerLifeUpdate();
 	void EnemyUpdate();//敵更新
 	void EnemyMove();//敵行動
 	void EnemyBorn();//

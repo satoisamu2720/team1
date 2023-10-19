@@ -45,6 +45,10 @@ void GameScene::Initialize() {
 	GroundViewProjection_.translation_.y = 1;
 	GroundViewProjection_.translation_.z = 1;
 	GroundViewProjection_.Initialize();
+	//ライフ
+	PlayerLifeViewProjection_.translation_.y = 0.7f;
+	PlayerLifeViewProjection_.translation_.z = -6;
+	PlayerLifeViewProjection_.Initialize();
 
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
@@ -80,15 +84,25 @@ void GameScene::Initialize() {
 	//地面
 	modelGround_ = Model::CreateFromOBJ("wall", true);
 	worldTransformGround_.Initialize();
+	
+	//スコア文字表示
+	textureHandleSCORE_ = TextureManager::Load("score.png");
+	spriteScore_ = Sprite::Create(textureHandleSCORE_, {0.0f, 10});
 
-	//スコア
+	// スコア
 	textureHandleNumber_ = TextureManager::Load("number.png");
 	for (int i = 0; i < 4; i++) {
 		spriteNumber_[i] = Sprite::Create(textureHandleNumber_, {130.0f + i * 26, 10});
 	}
 
-	textureHandleSCORE_ = TextureManager::Load("score.png");
-	spriteScore_ = Sprite::Create(textureHandleSCORE_, {0.0f, 10});
+	//プレイヤーライフ
+	textureHandlePlayerLife_ = TextureManager::Load("player.png");
+	modelPlayerLife_ = Model::Create();
+	for (int i = 0; i < 3; i++) 
+	{
+		worldTransformPlayerLife_[i].scale_ = {0.2f, 0.2f, 0.2f};
+		worldTransformPlayerLife_[i].Initialize();
+	}
 }
 
 void GameScene::GamePlayUpdate() { 
@@ -96,6 +110,7 @@ void GameScene::GamePlayUpdate() {
 	BeamUpdate();
 	EnemyUpdate();
 	WallUpdate();
+	PlayerLifeUpdate();
 	Collision();
 }
 // シーン切り替え
@@ -121,35 +136,62 @@ void GameScene::Update() {
 // プレイヤー更新処理
 void GameScene::PlayerUpdate() {
 
-	
-	if (++buttonTimer_ >= 20 && input_->PushKey(DIK_SPACE)) {
-		playerMoveFlag_++;
-		buttonTimer_ = 0;
+	for (int i = 0; i < 3; i++) {
+
+		if (++buttonTimer_ >= 20 && input_->PushKey(DIK_SPACE)) {
+			playerMoveFlag_++;
+			playerLifeMoveFlag_[i]++;
+
+			buttonTimer_ = 0;
+		}
+		if (playerMoveFlag_ > 1 || playerLifeMoveFlag_[i] > 1) {
+			playerMoveFlag_ = 0;
+			playerLifeMoveFlag_[i] = 0;
+		}
+		// 右へ移動
+		if (playerMoveFlag_ == 0) {
+			worldTransformPlayer_.translation_.x += playerSpeed_;
+			inputFloat[0] = worldTransformPlayer_.translation_.x;
+			worldTransformPlayerLife_[i].translation_.x += playerLifeSpeed_;
+			
+		}
+		if (playerLifeMoveFlag_[0] == 0) {
+			
+		}
+		// 左へ移動
+		if (playerMoveFlag_ == 1) {
+			worldTransformPlayer_.translation_.x -= playerSpeed_;
+			inputFloat[0] = worldTransformPlayer_.translation_.x;
+			worldTransformPlayerLife_[0].translation_.x -= playerLifeSpeed_;
+			worldTransformPlayerLife_[1].translation_.x -= playerLifeSpeed_;
+		}
+		
+	if (playerLifeMoveFlag_[0] == 1) {
 	}
-	if (playerMoveFlag_ > 1) {
-		playerMoveFlag_ = 0;
-	}
-	// 右へ移動
-	if (playerMoveFlag_ == 0) {
-		worldTransformPlayer_.translation_.x += playerSpeed_;
-		inputFloat[0] = worldTransformPlayer_.translation_.x;
-	}  
-	// 左へ移動
-	if (playerMoveFlag_ == 1) {
-		worldTransformPlayer_.translation_.x -= playerSpeed_;
-		inputFloat[0] = worldTransformPlayer_.translation_.x;
-	}  
-	// 左へ移動
-	if (worldTransformPlayer_.translation_.x > 4) {
-		playerMoveFlag_ = 1;
-	}
-	// 右へ移動
-	if (worldTransformPlayer_.translation_.x < -4) {
-		playerMoveFlag_ = 0;
+		// 左へ移動
+		if (worldTransformPlayer_.translation_.x > 4) {
+			playerMoveFlag_ = 1;
+			
+		}
+		if (worldTransformPlayerLife_[i].translation_.x > 4) {
+			playerLifeMoveFlag_[i] = 1;
+		}
+		// 右へ移動
+		if (worldTransformPlayer_.translation_.x < -4) {
+			playerMoveFlag_ = 0;
+			
+		}
+		if (worldTransformPlayerLife_[i].translation_.x < -4) {
+			playerLifeMoveFlag_[i] = 0;
+		}
 	}
 	worldTransformPlayer_.translation_.x = inputFloat[0];
 	worldTransformPlayer_.translation_.y = inputFloat[1];
 	worldTransformPlayer_.translation_.z = inputFloat[2];
+
+	//worldTransformPlayerLife_[0].translation_ = {1.0f,1.0f,1.0f};
+
+
 	// 変換行列を更新
 	worldTransformPlayer_.matWorld_ = MakeAffineMatrix(
 	    worldTransformPlayer_.scale_, worldTransformPlayer_.rotation_,
@@ -336,6 +378,19 @@ void GameScene::WallUpdate() {
 	}
 }
 
+void GameScene::PlayerLifeUpdate() {
+
+	for (int i = 0; i < 3; i++) {
+
+		// 変換行列を更新
+		worldTransformPlayerLife_[i].matWorld_ = MakeAffineMatrix(
+		    worldTransformPlayerLife_[i].scale_, worldTransformPlayerLife_[i].rotation_,
+		    worldTransformPlayerLife_[i].translation_);
+		// 変換行列を定数バッファに転送
+		worldTransformPlayerLife_[i].TransferMatrix();
+	}
+}
+
 void GameScene::Collision() {
 	// 衝突判定（プレイヤーと敵）
 	CollisionPlayerEnemy();
@@ -435,19 +490,14 @@ void GameScene::CollisionBeamWall() {
 void GameScene::GamePlayDraw2DNear() 
 {
 	// ライフ
-	for (int i = 0; i < 3; i++) 
+	/*for (int i = 0; i < 3; i++) 
 	{ 
-		spriteLife_[i] = Sprite::Create(textureHandlePlayer_,{worldTransformPlayer_.translation_.x + i * 20, worldTransformPlayer_.translation_.y});
+		spriteLife_[i] = Sprite::Create(textureHandlePlayer_,{worldTransformPlayer_.translation_.x + i * 20 + playerSpeed_, worldTransformPlayer_.translation_.y + 450});
 		spriteLife_[i]->SetSize({20, 20});
-
-
-	}
+	}*/
 
 	//描画
-	for (int i = 0; i < 3; i++) 
-	{
-		spriteLife_[i]->Draw();
-	}
+	
 	spriteScore_->Draw();
 	DrawScore();
 }
@@ -539,7 +589,24 @@ void GameScene::GamePlayDraw3D() {
 
 	//地面
 	modelGround_->Draw(worldTransformGround_, GroundViewProjection_);
+
+
+	for (int i = 0; i < 3; i++) {
+
+		modelPlayerLife_->Draw(
+			worldTransformPlayerLife_[0], PlayerLifeViewProjection_, textureHandlePlayer_);
+		modelPlayerLife_->Draw(
+		    worldTransformPlayerLife_[1], PlayerLifeViewProjection_, textureHandlePlayer_);
+		modelPlayerLife_->Draw(
+		    worldTransformPlayerLife_[2], PlayerLifeViewProjection_, textureHandlePlayer_);
+
+	}
+
 }
+
+
+
+
 	void GameScene::Draw() {
 
 	// コマンドリストの取得
