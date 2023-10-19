@@ -71,8 +71,31 @@ class GameScene {
 
 	int gameScore_ = 0;
 
+	int gameTimer_ = 0;
+
 	//ライフ表示
 	Sprite* spriteLife_[3] = {};
+
+	//シーン切り替え
+	int sceneMode_ = 1;
+
+	//タイトル
+	void TitleUpdate();
+	void TitleDraw2DNear();
+
+	//タイトル（スプライト）
+	uint32_t texttureHandleTitle_ = 0;
+	Sprite* spriteTitle_ = nullptr;
+
+	//タイトル（文字）
+	uint32_t textureHandleTitleEnter_ = 0;
+	Sprite* spriteEnter_ = nullptr;
+
+	//ゲームオーバー
+	void GameoverUpdate();
+
+	uint32_t textureHandleGameover_ = 0;
+	Sprite* spriteGameover_ = nullptr;
 
 public: // メンバ関数
 	/// <summary>
@@ -119,6 +142,7 @@ public: // メンバ関数
 	void Draw();
 	void DrawScore(); //スコア表示
 	void GamePlayDraw2DNear();
+	void GameOverDraw2DNear();//ゲームオーバー
 	void GamePlayDraw3D();
 
 private: // メンバ変数

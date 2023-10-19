@@ -98,9 +98,25 @@ void GameScene::GamePlayUpdate() {
 	WallUpdate();
 	Collision();
 }
-void GameScene::Update() { 
-	GamePlayUpdate(); 
+// シーン切り替え
+
+void GameScene::Update() {
+
+	switch (sceneMode_) {
+	case 0:
+		GamePlayUpdate();
+		break;
+	case 1:
+		TitleUpdate();
+		break;
+	case 2:
+		GameoverUpdate();
+		break;
+	}
+
+	gameTimer_ += 1;
 }
+
 
 // プレイヤー更新処理
 void GameScene::PlayerUpdate() {
@@ -150,6 +166,10 @@ void GameScene::PlayerUpdate() {
 	ImGui::SliderFloat3("Positions", inputFloat, -4.0f, 4.0f);
 	// ImGui終わり
 	ImGui::End();
+
+	if (playerLife_ == 0) {
+		sceneMode_ = 2;
+	}
 }
 
 // ビーム更新処理
@@ -449,6 +469,50 @@ void GameScene::DrawScore() {
 		spriteNumber_[i]->Draw();
 	}
 }
+// タイトル
+void GameScene::TitleUpdate() {
+	for (int i = 0; i < 10; i++) {
+		if (input_->TriggerKey(DIK_RETURN)) {
+			// リセット
+			worldTransformPlayer_.translation_.x = 0;
+			gameScore_ = 0;
+			beamFlag_[i] = 0;
+			playerLife_ = 3;
+			sceneMode_ = 0;
+			EnemyFlag_[i] = 0;
+			beamFlag_[i] = 0;
+			gameTimer_ = 0;
+			playerTimer_ = 0;
+			GamePlayUpdate();
+		}
+	}
+}
+void GameScene::GameoverUpdate() {
+	for (int i = 0; i < 10; i++) {
+		if (input_->TriggerKey(DIK_RETURN)) {
+			sceneMode_ = 1;
+
+			}
+	}
+}
+
+// タイトル
+void GameScene::TitleDraw2DNear() {
+	spriteTitle_->Draw();
+
+	if (gameTimer_ % 40 >= 20) {
+		    spriteEnter_->Draw();
+	}
+}
+
+void GameScene::GameOverDraw2DNear() {
+	spriteGameover_->Draw();
+
+	if (gameTimer_ % 40 >= 20) {
+		    spriteEnter_->Draw();
+	}
+}
+
 
 void GameScene::GamePlayDraw3D() {
 	//プレイヤー
