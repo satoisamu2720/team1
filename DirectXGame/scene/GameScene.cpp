@@ -285,6 +285,7 @@ void GameScene::BeamBorn() {
 void GameScene::EnemyUpdate() {
 	EnemyMove();
 	EnemyBorn();
+	EnemyJump();
 	for (int e = 0; e < 10; e++) {
 		if (EnemyFlag_[e] != 0)
 
@@ -342,6 +343,26 @@ void GameScene::EnemyBorn() {
 		if (worldTransformEnemy_[e].translation_.z < -5) {
 			EnemyFlag_[e] = 0;
 			break;
+		}
+	}
+}
+void GameScene::EnemyJump() {
+	for (int i = 0; i < 10; i++) {
+		if (EnemyFlag_[i] == 2) {
+			//
+
+			//
+			worldTransformEnemy_[i].translation_.x += enemyJumpSpeed_[i];
+			enemyJumpSpeed_[i] -= 0.1f;
+
+			//
+			// worldTransformEnemy_[i].translation_.x += enemySpeed_[i] * 4;
+			worldTransformEnemy_[i].translation_.y += enemySpeed_[i] * 4;
+			//
+
+			if (worldTransformEnemy_[i].translation_.y < -3) {
+				EnemyFlag_[i] = 0;
+			}
 		}
 	}
 }

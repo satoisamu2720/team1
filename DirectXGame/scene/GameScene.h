@@ -39,6 +39,7 @@ class GameScene {
 	int EnemyFlag_[10] = {};
 	float enemySpeed_[10] = {}; // 敵のスピード
 	int enemyTimer_[10] = {};
+	float enemyJumpSpeed_[10] = {};
 
 	// 壁
 	uint32_t textureHandleWall_ = 0;
@@ -140,6 +141,7 @@ public: // メンバ関数
 	void EnemyUpdate();//敵更新
 	void EnemyMove();//敵行動
 	void EnemyBorn();//
+	void EnemyJump();
 	void BeamUpdate(); // ビーム更新
 	void BeamMove();   // ビーム行動
 	void BeamBorn();   // ビーム
