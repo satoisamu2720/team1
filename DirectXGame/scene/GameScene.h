@@ -22,7 +22,7 @@ class GameScene {
 
 	int playerLife_ = 3;
 	int playerTimer_ = 0;
-	float playerSpeed_ = 0.03f;
+	float playerSpeed_ = 0.02f;
 	int playerMoveFlag_ = 0;
 	
 	// ビーム
@@ -47,7 +47,7 @@ class GameScene {
 	WorldTransform worldTransformWall_;
 	int WallFlag_ = 1;// 壁フラグ
 	int WallLife_ = 3;// 壁体力
-	float WallSpeed_ = 0.02f; // 壁の速度
+	float WallSpeed_ = 0.04f; // 壁の速度
 	int WallTime_ = 30;
 	int WallTimeFlag_ = 0;
 
@@ -59,7 +59,7 @@ class GameScene {
 	WorldTransform worldTransformGround_;
 	Model* modelGround_ = nullptr;
 
-	int buttonTimer_ = 20; //ボタンクールタイム
+	int buttonTimer_ = 40; //ボタンクールタイム
 	int buttonTimerFlag_ = 0;//ボタンクールタイムフラグ
 
 	//ナンバー
@@ -84,7 +84,7 @@ class GameScene {
 	WorldTransform worldTransformPlayerLife_[3];
 
 	int playerTimerLife_ = 0;
-	float playerLifeSpeed_ = 0.03f;
+	float playerLifeSpeed_ = 0.02f;
 	int playerLifeMoveFlag_[3] = {};
 
 	//シーン切り替え
