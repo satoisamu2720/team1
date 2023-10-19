@@ -119,7 +119,7 @@ public: // メンバ関数
 	ViewProjection wallViewProjection_;
 	ViewProjection SkyDomeViewProjection_;
 	ViewProjection GroundViewProjection_;
-	ViewProjection PlayerLifeViewProjection_;
+	ViewProjection PlayerLifeViewProjection_[3];
 	/// <summary>
 	/// デストラクタ
 	/// </summary>

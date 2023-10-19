@@ -46,9 +46,14 @@ void GameScene::Initialize() {
 	GroundViewProjection_.translation_.z = 1;
 	GroundViewProjection_.Initialize();
 	//ライフ
-	PlayerLifeViewProjection_.translation_.y = 0.7f;
-	PlayerLifeViewProjection_.translation_.z = -6;
-	PlayerLifeViewProjection_.Initialize();
+	for (int i = 0; i < 3; i++) {
+		PlayerLifeViewProjection_[0].translation_.x =-0.5;
+		PlayerLifeViewProjection_[1].translation_.x = 0;
+		PlayerLifeViewProjection_[2].translation_.x = 0.5;
+		PlayerLifeViewProjection_[i].translation_.y = 0.7f;
+		PlayerLifeViewProjection_[i].translation_.z = -6;
+		PlayerLifeViewProjection_[i].Initialize();
+	}
 
 	// プレイヤー
 	textureHandlePlayer_ = TextureManager::Load("player.png");
@@ -106,11 +111,12 @@ void GameScene::Initialize() {
 }
 
 void GameScene::GamePlayUpdate() { 
+	PlayerLifeUpdate();
 	PlayerUpdate(); 
 	BeamUpdate();
 	EnemyUpdate();
 	WallUpdate();
-	PlayerLifeUpdate();
+	
 	Collision();
 }
 // シーン切り替え
@@ -140,49 +146,43 @@ void GameScene::PlayerUpdate() {
 
 		if (++buttonTimer_ >= 20 && input_->PushKey(DIK_SPACE)) {
 			playerMoveFlag_++;
-			playerLifeMoveFlag_[i]++;
+			playerLifeMoveFlag_[0]++;
 
 			buttonTimer_ = 0;
 		}
 		if (playerMoveFlag_ > 1 || playerLifeMoveFlag_[i] > 1) {
 			playerMoveFlag_ = 0;
-			playerLifeMoveFlag_[i] = 0;
+			playerLifeMoveFlag_[0] = 0;
 		}
 		// 右へ移動
 		if (playerMoveFlag_ == 0) {
+			worldTransformPlayerLife_[0].translation_.x += playerLifeSpeed_;
+			worldTransformPlayerLife_[1].translation_.x += playerLifeSpeed_;
+			worldTransformPlayerLife_[2].translation_.x += playerLifeSpeed_;
 			worldTransformPlayer_.translation_.x += playerSpeed_;
 			inputFloat[0] = worldTransformPlayer_.translation_.x;
-			worldTransformPlayerLife_[i].translation_.x += playerLifeSpeed_;
 			
-		}
-		if (playerLifeMoveFlag_[0] == 0) {
 			
 		}
 		// 左へ移動
 		if (playerMoveFlag_ == 1) {
-			worldTransformPlayer_.translation_.x -= playerSpeed_;
-			inputFloat[0] = worldTransformPlayer_.translation_.x;
 			worldTransformPlayerLife_[0].translation_.x -= playerLifeSpeed_;
 			worldTransformPlayerLife_[1].translation_.x -= playerLifeSpeed_;
+			worldTransformPlayerLife_[2].translation_.x -= playerLifeSpeed_;
+			worldTransformPlayer_.translation_.x -= playerSpeed_;
+			inputFloat[0] = worldTransformPlayer_.translation_.x;
+			
+			//worldTransformPlayerLife_[1].translation_.x -= playerLifeSpeed_;
 		}
-		
-	if (playerLifeMoveFlag_[0] == 1) {
-	}
 		// 左へ移動
 		if (worldTransformPlayer_.translation_.x > 4) {
 			playerMoveFlag_ = 1;
-			
-		}
-		if (worldTransformPlayerLife_[i].translation_.x > 4) {
-			playerLifeMoveFlag_[i] = 1;
+			playerLifeMoveFlag_[0] = 1;
 		}
 		// 右へ移動
 		if (worldTransformPlayer_.translation_.x < -4) {
 			playerMoveFlag_ = 0;
-			
-		}
-		if (worldTransformPlayerLife_[i].translation_.x < -4) {
-			playerLifeMoveFlag_[i] = 0;
+			playerLifeMoveFlag_[0] = 0;
 		}
 	}
 	worldTransformPlayer_.translation_.x = inputFloat[0];
@@ -314,7 +314,7 @@ void GameScene::EnemyBorn() {
 	for (int e = 0; e < 10; e++) {
 		enemyTimer_[0]++;
 
-		if (enemyTimer_[0] > 120) {
+		if (enemyTimer_[0] > 60) {
 			enemyTimer_[0] = 0;
 		}
 		
@@ -524,7 +524,10 @@ void GameScene::TitleUpdate() {
 	for (int i = 0; i < 10; i++) {
 		if (input_->TriggerKey(DIK_RETURN)) {
 			// リセット
-			worldTransformPlayer_.translation_.x = 0;
+			//worldTransformPlayer_.translation_.x = 0;
+			PlayerLifeViewProjection_[0].translation_.x = -0.5f;
+			PlayerLifeViewProjection_[1].translation_.x = 0;
+			PlayerLifeViewProjection_[2].translation_.x = 0.5f;
 			gameScore_ = 0;
 			beamFlag_[i] = 0;
 			playerLife_ = 3;
@@ -592,14 +595,18 @@ void GameScene::GamePlayDraw3D() {
 
 
 	for (int i = 0; i < 3; i++) {
-
-		modelPlayerLife_->Draw(
-			worldTransformPlayerLife_[0], PlayerLifeViewProjection_, textureHandlePlayer_);
-		modelPlayerLife_->Draw(
-		    worldTransformPlayerLife_[1], PlayerLifeViewProjection_, textureHandlePlayer_);
-		modelPlayerLife_->Draw(
-		    worldTransformPlayerLife_[2], PlayerLifeViewProjection_, textureHandlePlayer_);
-
+		if (playerLife_ >= 3) {
+			modelPlayerLife_->Draw(
+			    worldTransformPlayerLife_[0], PlayerLifeViewProjection_[0], textureHandlePlayer_);
+		}
+		if (playerLife_ >= 2) {
+			modelPlayerLife_->Draw(
+			    worldTransformPlayerLife_[1], PlayerLifeViewProjection_[1], textureHandlePlayer_);
+		}
+		if (playerLife_ >= 1) {
+			modelPlayerLife_->Draw(
+			    worldTransformPlayerLife_[2], PlayerLifeViewProjection_[2], textureHandlePlayer_);
+		}
 	}
 
 }
