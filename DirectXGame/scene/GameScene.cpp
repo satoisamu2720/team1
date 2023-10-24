@@ -525,13 +525,6 @@ void GameScene::CollisionBeamWall() {
 
 void GameScene::GamePlayDraw2DNear() 
 {
-	// ライフ
-	/*for (int i = 0; i < 3; i++) 
-	{ 
-		spriteLife_[i] = Sprite::Create(textureHandlePlayer_,{worldTransformPlayer_.translation_.x + i * 20 + playerSpeed_, worldTransformPlayer_.translation_.y + 450});
-		spriteLife_[i]->SetSize({20, 20});
-	}*/
-
 	//描画
 	
 	spriteScore_->Draw();
