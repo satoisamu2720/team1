@@ -33,6 +33,7 @@ void GameScene::Initialize() {
 	enemyViewProjection_.translation_.z = -6;
 	enemyViewProjection_.Initialize();
 	//壁ビュープロジェクションの初期化
+	wallViewProjection_.translation_.x = 0;
 	wallViewProjection_.translation_.y = 1;
 	wallViewProjection_.translation_.z = -6;
 	wallViewProjection_.Initialize();
@@ -580,6 +581,9 @@ void GameScene::GameoverUpdate() {
 			beamFlag_[i] = 0;
 			gameTimer_ = 0;
 			playerTimer_ = 0;
+			WallLife_ = 3;
+			WallTime_ = 0;
+			WallFlag_ = 1;
 			Initialize();
 			sceneMode_ = 1;
 
