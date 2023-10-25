@@ -10,6 +10,8 @@
 #include "WorldTransform.h"
 #include "DebugCamera.h"
 #include "ImGuiManager.h"
+#include "MathUtilityForText.h"
+#include "TextureManager.h"
 
 #include "Player.h"
 /// <summary>

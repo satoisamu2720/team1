@@ -5,6 +5,9 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include "Audio.h"
+#include "ImGuiManager.h"
+#include "MathUtilityForText.h"
+
 class Player {
 
 public: // ƒƒ“ƒoŠÖ”
@@ -15,12 +18,13 @@ public: // ƒƒ“ƒoŠÖ”
 
 	void Draw();
 
-	void Model();
-
+	Player();
+	ViewProjection playerViewProjection_;
+	 ~Player();
 
 
 private: // ƒƒ“ƒo•Ï”
-	ViewProjection playerViewProjection_;
+	
 	WorldTransform worldTransformPlayer_;
 	Model* modelPlayer_ = nullptr;
 	DirectXCommon* dxCommon_ = nullptr;
