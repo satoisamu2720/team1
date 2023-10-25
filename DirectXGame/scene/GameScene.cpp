@@ -218,12 +218,12 @@ void GameScene::PlayerUpdate() {
 	if (playerTimer_ > 0) {
 		playerTimer_ -= 1;
 	}
-	// ImGuiスライダー
-	ImGui::Begin("PlayerDebug");
-	//ImGui::Text("DebugCamera Toggle : LEFT SHIFT");
-	ImGui::SliderFloat3("Positions", inputFloat, -4.0f, 4.0f);
-	// ImGui終わり
-	ImGui::End();
+	//// ImGuiスライダー
+	//ImGui::Begin("PlayerDebug");
+	////ImGui::Text("DebugCamera Toggle : LEFT SHIFT");
+	//ImGui::SliderFloat3("Positions", inputFloat, -4.0f, 4.0f);
+	//// ImGui終わり
+	//ImGui::End();
 
 	if (playerLife_ == 0) {
 		sceneMode_ = 2;
