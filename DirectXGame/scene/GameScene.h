@@ -16,7 +16,7 @@
 class GameScene {
 
 	// プレイヤー
-	uint32_t textureHandlePlayer_ = 0;
+	//uint32_t textureHandlePlayer_ = 0;
 	Model* modelPlayer_ = nullptr;
 	WorldTransform worldTransformPlayer_;
 
@@ -26,15 +26,15 @@ class GameScene {
 	int playerMoveFlag_ = 0;
 	
 	// ビーム
-	uint32_t textureHandleBeam_ = 0;
-	Model* modelBeam_ = {};
+	//uint32_t textureHandleBeam_ = 0;
+	Model* modelBeam_ = {nullptr};
 	WorldTransform worldTransformBeam_[10];
 	int beamFlag_[10] = {};// ビーム
 	int beamTimer_ = 0;// ビーム
 
 	// 敵
-	uint32_t textureHandleEnemy_ = 0;
-	Model* modelEnemy_ = 0;
+	//uint32_t textureHandleEnemy_ = 0;
+	Model* modelEnemy_ = nullptr;
 	WorldTransform worldTransformEnemy_[10];
 	int EnemyFlag_[10] = {};
 	float enemySpeed_[10] = {}; // 敵のスピード
@@ -42,13 +42,13 @@ class GameScene {
 	float enemyJumpSpeed_[10] = {};
 
 	// 壁
-	uint32_t textureHandleWall_ = 0;
+	//uint32_t textureHandleWall_ = 0;
 	Model* modelWall_ = nullptr;
 	WorldTransform worldTransformWall_;
 	int WallFlag_ = 1;// 壁フラグ
 	int WallLife_ = 3;// 壁体力
 	float WallSpeed_ = 0.04f; // 壁の速度
-	int WallTime_ = 30;
+	float WallTime_ = 0;
 	int WallTimeFlag_ = 0;
 
 	// スカイドーム
@@ -79,8 +79,8 @@ class GameScene {
 	Sprite* spriteLife_[3] = {};*/
 
 	// プレイヤーライフ
-	uint32_t textureHandlePlayerLife_ = 0;
-	Model* modelPlayerLife_ = nullptr;
+	//uint32_t textureHandlePlayerLife_ = 0;
+	Model* modelPlayerLife_ ={ nullptr};
 	WorldTransform worldTransformPlayerLife_[3];
 
 	int playerTimerLife_ = 0;
@@ -95,7 +95,7 @@ class GameScene {
 	void TitleDraw2DNear();
 
 	//タイトル（スプライト）
-	uint32_t texttureHandleTitle_ = 0;
+	uint32_t textureHandleTitle_ = 0;
 	Sprite* spriteTitle_ = nullptr;
 
 	//タイトル（文字）

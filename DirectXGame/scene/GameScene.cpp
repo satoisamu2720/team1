@@ -12,6 +12,7 @@ GameScene::~GameScene() {
 	delete modelWall_;
 	delete modelSkyDome_;
 	delete modelGround_;
+	delete modelPlayerLife_;
 }
 
 void GameScene::Initialize() {
@@ -56,38 +57,39 @@ void GameScene::Initialize() {
 	}
 
 	// プレイヤー
-	textureHandlePlayer_ = TextureManager::Load("player.png");
-	modelPlayer_ = Model::Create();
+	//textureHandlePlayer_ = TextureManager::Load("player.png");
+	modelPlayer_ = Model::CreateFromOBJ("player",true);
 	worldTransformPlayer_.scale_ = {0.2f, 0.2f, 0.2f};
 	worldTransformPlayer_.Initialize();
 	// ビーム
-	textureHandleBeam_ = TextureManager::Load("beam.png");
-	modelBeam_ = Model::Create();
+	//textureHandleBeam_ = TextureManager::Load("beam.png");
+	modelBeam_ = Model::CreateFromOBJ("bullet",true);
 
 	for (int b = 0; b < 10; b++) {
 		worldTransformBeam_[b].scale_ = {0.3f, 0.3f, 0.3f};
 		worldTransformBeam_[b].Initialize();
 	}
 	// 敵
-	textureHandleEnemy_ = TextureManager::Load("enemy.png");
-	modelEnemy_ = Model::Create();
+	//textureHandleEnemy_ = TextureManager::Load("enemy.png");
+	modelEnemy_ = Model::CreateFromOBJ("enemy",true);
 
 	for (int e = 0; e < 10; e++) {
 		worldTransformEnemy_[e].scale_ = {0.5f, 0.5f, 0.5f};
 		worldTransformEnemy_[e].Initialize();
 	}
 	// 壁
-	textureHandleWall_ = TextureManager::Load("wall.png");
-	modelWall_ = Model::Create();
+	//textureHandleWall_ = TextureManager::Load("wall.png");
+	modelWall_ = Model::CreateFromOBJ("wall",true);
 	worldTransformWall_.scale_ = {1.0f, 1.0f, 1.0f};
 	worldTransformWall_.Initialize();
 
 	//天球
-	modelSkyDome_ = Model::CreateFromOBJ("skydome", true);
+	modelSkyDome_ = Model::CreateFromOBJ("sky", true);
+	worldTransformSkyDome_.scale_ = {1.0f, 1.0f, 1.0f};
 	worldTransformSkyDome_.Initialize();
 
 	//地面
-	modelGround_ = Model::CreateFromOBJ("wall", true);
+	modelGround_ = Model::CreateFromOBJ("field", true);
 	worldTransformGround_.Initialize();
 	
 	//スコア文字表示
@@ -101,13 +103,22 @@ void GameScene::Initialize() {
 	}
 
 	//プレイヤーライフ
-	textureHandlePlayerLife_ = TextureManager::Load("player.png");
-	modelPlayerLife_ = Model::Create();
+	//textureHandlePlayerLife_ = TextureManager::Load("player.png");
+	modelPlayerLife_ = Model::CreateFromOBJ("playerLife",true);
 	for (int i = 0; i < 3; i++) 
 	{
 		worldTransformPlayerLife_[i].scale_ = {0.2f, 0.2f, 0.2f};
 		worldTransformPlayerLife_[i].Initialize();
 	}
+	//タイトル（スプライト）
+	textureHandleTitle_ = TextureManager::Load("title.png");
+	spriteTitle_ = Sprite::Create(textureHandleTitle_, {0, 0});
+
+	// タイトル（説明）
+	//texttureHandleTitle_ = TextureManager::Load("titleA.png");
+	// ゲーム終了（スプライト）
+	textureHandleGameover_ = TextureManager::Load("finish.png");
+	spriteGameover_ = Sprite::Create(textureHandleGameover_, {0, 0});
 }
 
 void GameScene::GamePlayUpdate() { 
@@ -190,7 +201,7 @@ void GameScene::PlayerUpdate() {
 		
 	}
 	worldTransformPlayer_.translation_.x = inputFloat[0];
-	worldTransformPlayer_.translation_.y = inputFloat[1];
+	inputFloat[1] = WallTime_;
 	worldTransformPlayer_.translation_.z = inputFloat[2];
 
 	//worldTransformPlayerLife_[0].translation_ = {1.0f,1.0f,1.0f};
@@ -449,7 +460,7 @@ void GameScene::CollisionPlayerEnemy() {
 			if (dx < 1 && dz < 1) {
 				// 存在しない
 				EnemyFlag_[i] = 0;
-				playerLife_ -= 1;
+				//playerLife_ -= 1;
 				playerTimer_ = 60;
 				// BGM切り替え
 			}
@@ -500,24 +511,25 @@ void GameScene::CollisionBeamWall() {
 			// 衝突したら
 			if (dx < 1 && dz < 1) {
 				WallLife_ -= 1;
-				WallTimeFlag_ = 1;
 				beamFlag_[b] = 0;
 				worldTransformBeam_[b].translation_.z = -20;
 			}
 
 			
-			if (WallLife_ <= 0) {
-				WallFlag_ = 0;
+			if (WallLife_ == 0) {
 				gameScore_ += 2;
+				WallFlag_ = 0;
+				
 			}
 		}
-		if (WallTimeFlag_ == 1) {
-			WallTime_--;
+
+		if (WallFlag_ == 0) {
+			WallTime_++;
 		}
-		if (WallTime_ == 0) {
-			WallTimeFlag_ = 0;
-			WallTime_ = 30;
-			
+		if (WallTime_ == 120) {
+			WallLife_ = 3;
+			WallTime_ = 0;
+			WallFlag_ = 1;
 		}
 		
 	}
@@ -574,69 +586,70 @@ void GameScene::GameoverUpdate() {
 	}
 }
 
-// タイトル
-void GameScene::TitleDraw2DNear() {
-	spriteTitle_->Draw();
-
-	if (gameTimer_ % 40 >= 20) {
-		    spriteEnter_->Draw();
-	}
-}
-
-void GameScene::GameOverDraw2DNear() {
-	spriteGameover_->Draw();
-
-	if (gameTimer_ % 40 >= 20) {
-		    spriteEnter_->Draw();
-	}
-}
 
 
 void GameScene::GamePlayDraw3D() {
 	//プレイヤー
-	modelPlayer_->Draw(worldTransformPlayer_, playerViewProjection_, textureHandlePlayer_);
+	modelPlayer_->Draw(worldTransformPlayer_, playerViewProjection_);
 	//弾
 	for (int b = 0; b < 10; b++) {
 		if (beamFlag_[b] == 1) {
-			modelBeam_->Draw(worldTransformBeam_[b], beamViewProjection_, textureHandleBeam_);
+			modelBeam_->Draw(worldTransformBeam_[b], beamViewProjection_);
 		}
 	}
 	// 敵描画　
 	for (int e = 0; e < 10; e++) {
 		if (EnemyFlag_[e] != 0) {
-			modelEnemy_->Draw(worldTransformEnemy_[e], enemyViewProjection_, textureHandleEnemy_);
+			modelEnemy_->Draw(worldTransformEnemy_[e], enemyViewProjection_);
 		}
 	}
 	// 壁
-	if (WallFlag_ == 1) {
-		modelWall_->Draw(worldTransformWall_, wallViewProjection_, textureHandleWall_);
+	if (WallLife_ > 0 ) {
+		modelWall_->Draw(worldTransformWall_, wallViewProjection_);
 	}
 
 	//天球
-	modelSkyDome_->Draw(worldTransformSkyDome_, SkyDomeViewProjection_);
+	//modelSkyDome_->Draw(worldTransformSkyDome_, SkyDomeViewProjection_);
 
 	//地面
-	modelGround_->Draw(worldTransformGround_, GroundViewProjection_);
+	//modelGround_->Draw(worldTransformGround_, GroundViewProjection_);
 
 
-	for (int i = 0; i < 3; i++) {
+
 		if (playerLife_ >= 3) {
 			modelPlayerLife_->Draw(
-			    worldTransformPlayerLife_[0], PlayerLifeViewProjection_[0], textureHandlePlayer_);
+			    worldTransformPlayerLife_[0], PlayerLifeViewProjection_[0]);
 		}
 		if (playerLife_ >= 2) {
 			modelPlayerLife_->Draw(
-			    worldTransformPlayerLife_[1], PlayerLifeViewProjection_[1], textureHandlePlayer_);
+			    worldTransformPlayerLife_[1], PlayerLifeViewProjection_[1]);
 		}
 		if (playerLife_ >= 1) {
 			modelPlayerLife_->Draw(
-			    worldTransformPlayerLife_[2], PlayerLifeViewProjection_[2], textureHandlePlayer_);
+			    worldTransformPlayerLife_[2], PlayerLifeViewProjection_[2]);
 		}
-	}
+	
 
 }
 
 
+// タイトル
+void GameScene::TitleDraw2DNear() {
+	    spriteTitle_->Draw();
+
+	    if (gameTimer_ % 40 >= 20) {
+		   // spriteEnter_->Draw();
+	    }
+}
+
+void GameScene::GameOverDraw2DNear() {
+	    spriteGameover_->Draw();
+	    //spriteNumber_[i] = Sprite::Create(textureHandleNumber_, {130.0f + i * 26, 10});
+	    DrawScore();
+	    if (gameTimer_ % 40 >= 20) {
+		  //  spriteEnter_->Draw();
+	    }
+}
 
 
 	void GameScene::Draw() {
@@ -676,7 +689,14 @@ void GameScene::GamePlayDraw3D() {
 	Sprite::PreDraw(commandList);
 
 	GamePlayDraw2DNear();
-
+	if (sceneMode_ == 1) {
+		    TitleDraw2DNear();
+	}
+	if (sceneMode_ == 2) {
+		    GameOverDraw2DNear();
+	}
+	
+	
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
