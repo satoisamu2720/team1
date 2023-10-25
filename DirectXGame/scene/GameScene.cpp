@@ -71,10 +71,11 @@ void GameScene::Initialize() {
 	}
 	// 敵
 	//textureHandleEnemy_ = TextureManager::Load("enemy.png");
-	modelEnemy_ = Model::CreateFromOBJ("enemy",true);
+	modelEnemy_ = Model::CreateFromOBJ("ufo",true);
 
 	for (int e = 0; e < 10; e++) {
 		worldTransformEnemy_[e].scale_ = {0.5f, 0.5f, 0.5f};
+		//worldTransformEnemy_[e].rotation_.y = {4.7f};
 		worldTransformEnemy_[e].Initialize();
 	}
 	// 壁
@@ -84,7 +85,7 @@ void GameScene::Initialize() {
 	worldTransformWall_.Initialize();
 
 	//天球
-	modelSkyDome_ = Model::CreateFromOBJ("sky", true);
+	modelSkyDome_ = Model::CreateFromOBJ("skydome", true);
 	worldTransformSkyDome_.scale_ = {1.0f, 1.0f, 1.0f};
 	worldTransformSkyDome_.Initialize();
 
@@ -422,6 +423,14 @@ void GameScene::WallUpdate() {
 		// 変換行列を定数バッファに転送
 		worldTransformWall_.TransferMatrix();
 	}
+	if (WallFlag_ == 0) {
+		WallTime_++;
+	}
+	if (WallTime_ == 120) {
+		WallLife_ = 3;
+		WallTime_ = 0;
+		WallFlag_ = 1;
+	}
 }
 
 void GameScene::PlayerLifeUpdate() {
@@ -460,7 +469,7 @@ void GameScene::CollisionPlayerEnemy() {
 			if (dx < 1 && dz < 1) {
 				// 存在しない
 				EnemyFlag_[i] = 0;
-				//playerLife_ -= 1;
+				playerLife_ -= 1;
 				playerTimer_ = 60;
 				// BGM切り替え
 			}
@@ -522,15 +531,6 @@ void GameScene::CollisionBeamWall() {
 				
 			}
 		}
-
-		if (WallFlag_ == 0) {
-			WallTime_++;
-		}
-		if (WallTime_ == 120) {
-			WallLife_ = 3;
-			WallTime_ = 0;
-			WallFlag_ = 1;
-		}
 		
 	}
 }
@@ -563,26 +563,27 @@ void GameScene::DrawScore() {
 // タイトル
 void GameScene::TitleUpdate() {
 	for (int i = 0; i < 10; i++) {
-		if (input_->TriggerKey(DIK_RETURN)) {
+		if (input_->TriggerKey(DIK_SPACE)) {
 			// リセット
 			gameScore_ = 0;
-			beamFlag_[i] = 0;
-			playerLife_ = 3;
 			sceneMode_ = 0;
-			EnemyFlag_[i] = 0;
-			beamFlag_[i] = 0;
-			gameTimer_ = 0;
-			playerTimer_ = 0;
 			GamePlayUpdate();
 		}
 	}
 }
 void GameScene::GameoverUpdate() {
 	for (int i = 0; i < 10; i++) {
-		if (input_->TriggerKey(DIK_RETURN)) {
+		if (input_->TriggerKey(DIK_SPACE)) {
+			beamFlag_[i] = 0;
+			playerLife_ = 3;
+			EnemyFlag_[i] = 0;
+			beamFlag_[i] = 0;
+			gameTimer_ = 0;
+			playerTimer_ = 0;
+			Initialize();
 			sceneMode_ = 1;
 
-			}
+		}
 	}
 }
 
@@ -609,7 +610,7 @@ void GameScene::GamePlayDraw3D() {
 	}
 
 	//天球
-	//modelSkyDome_->Draw(worldTransformSkyDome_, SkyDomeViewProjection_);
+	modelSkyDome_->Draw(worldTransformSkyDome_, SkyDomeViewProjection_);
 
 	//地面
 	//modelGround_->Draw(worldTransformGround_, GroundViewProjection_);
@@ -636,19 +637,15 @@ void GameScene::GamePlayDraw3D() {
 // タイトル
 void GameScene::TitleDraw2DNear() {
 	    spriteTitle_->Draw();
-
-	    if (gameTimer_ % 40 >= 20) {
-		   // spriteEnter_->Draw();
-	    }
 }
 
 void GameScene::GameOverDraw2DNear() {
 	    spriteGameover_->Draw();
-	    //spriteNumber_[i] = Sprite::Create(textureHandleNumber_, {130.0f + i * 26, 10});
-	    DrawScore();
-	    if (gameTimer_ % 40 >= 20) {
-		  //  spriteEnter_->Draw();
+	    spriteScore_ = Sprite::Create(textureHandleSCORE_, {510.0f, 360});
+	    for (int i = 0; i < 4; i++) {
+		    spriteNumber_[i] = Sprite::Create(textureHandleNumber_, {640.0f + i * 26, 360});
 	    }
+	    GamePlayDraw2DNear();
 }
 
 
