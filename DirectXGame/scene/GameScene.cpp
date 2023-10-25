@@ -591,7 +591,7 @@ void GameScene::GamePlayDraw3D() {
 	modelSkyDome_->Draw(worldTransformSkyDome_, SkyDomeViewProjection_);
 
 	//地面
-	modelGround_->Draw(worldTransformGround_, GroundViewProjection_);
+	//modelGround_->Draw(worldTransformGround_, GroundViewProjection_);
 
 
 	for (int i = 0; i < 3; i++) {
