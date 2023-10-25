@@ -10,20 +10,14 @@
 #include "WorldTransform.h"
 #include "DebugCamera.h"
 #include "ImGuiManager.h"
+
+#include "Player.h"
 /// <summary>
 /// ゲームシーン
 /// </summary>
 class GameScene {
 
-	// プレイヤー
-	//uint32_t textureHandlePlayer_ = 0;
-	Model* modelPlayer_ = nullptr;
-	WorldTransform worldTransformPlayer_;
-
-	int playerLife_ = 3;
-	int playerTimer_ = 0;
-	float playerSpeed_ = 0.02f;
-	int playerMoveFlag_ = 0;
+	
 	
 	// ビーム
 	//uint32_t textureHandleBeam_ = 0;
@@ -165,5 +159,5 @@ private: // メンバ変数
 	Audio* audio_ = nullptr;
 
 	float inputFloat[3]{0, 0, 0};
-	
+	Player* player_ = new Player;
 };

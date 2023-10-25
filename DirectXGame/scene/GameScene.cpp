@@ -6,7 +6,7 @@
 GameScene::GameScene() {}
 
 GameScene::~GameScene() { 
-	delete modelPlayer_; 
+	delete player_->modelPlayer_; 
 	delete modelBeam_;
 	delete modelEnemy_;
 	delete modelWall_;
@@ -20,10 +20,7 @@ void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
-	//プレイヤービュープロジェクションの初期化
-	playerViewProjection_.translation_.y = 1;
-	playerViewProjection_.translation_.z = -6;
-	playerViewProjection_.Initialize();
+	
 	//弾ビュープロジェクションの初期化
 	beamViewProjection_.translation_.y = 1;
 	beamViewProjection_.translation_.z = -6;
